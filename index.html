@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f6d365;
+            color: #fff;
+            text-align: center;
+        }
+        #page-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            transition: background 1s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .text-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 2s forwards;
+        }
+        h1 {
+            font-size: 3em;
+            margin: 0;
+        }
+        p {
+            font-size: 1.2em;
+        }
+        .buttons button {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .hidden {
+            display: none;
+        }
+        #cake-img {
+            max-width: 80%;
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+        #cake-img:hover {
+            transform: scale(1.05);
+        }
+        .heart {
+            position: absolute;
+            font-size: 2em;
+            animation: rise 5s linear forwards;
+            pointer-events: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes rise {
+            to {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="music" src="birthday_song.mp3" loop></audio>
+
+    <div id="page-container" onclick="nextStep()">
+        <div class="text-overlay">
+            <h1 id="heading">Welcome Puja ji</h1>
+            <p id="message">Tap anywhere to enter...</p>
+        </div>
+    </div>
+
+    <div class="hearts-container"></div>
+
+    <script>
+        let step = 0;
+        const music = document.getElementById('music');
+        const pageContainer = document.getElementById('page-container');
+        const heading = document.getElementById('heading');
+        const message = document.getElementById('message');
+        const heartsContainer = document.querySelector('.hearts-container');
+
+        const pages = [
+            { bg: 'your_crush_photo.jpg', heading: 'Happy Birthday, Puja!', message: 'आपका दिन खास हो!' },
+            { bg: 'background_photo.jpg', heading: 'केक काटें!', message: 'केक पर टैप करें।' },
+            { bg: 'background_photo.jpg', heading: 'सवाल 1: इस साल का सबसे खास तोहफा?', message: 'आगे बढ़ें।' },
+            { bg: 'background_photo.jpg', heading: 'सवाल 2: सबसे कीमती तोहफा?', message: 'माँ की फोटो या कुछ और?' },
+            { bg: 'mother_and_daughter.jpg', heading: 'आपका सबसे कीमती तोहफा!', message: 'हमेशा मुस्कुराती रहो!' }
+        ];
+
+        function nextStep() {
+            if (step === 0) {
+                music.play().then(() => {
+                    pageContainer.style.backgroundImage = `url(${pages[0].bg})`;
+                    heading.innerText = pages[0].heading;
+                    message.innerText = pages[0].message;
+                    step = 1;
+                    showHearts(50);
+                }).catch(e => {
+                    // This handles cases where autoplay is blocked
+                    alert("Welcome Puja ji\n(Tap anywhere to continue after this message)");
+                    music.play();
+                    pageContainer.style.backgroundImage = `url(${pages[0].bg})`;
+                    heading.innerText = pages[0].heading;
+                    message.innerText = pages[0].message;
+                    step = 1;
+                    showHearts(50);
+                });
+            } else if (step === 1) {
+                heading.innerText = 'केक काटें!';
+                message.innerHTML = '<img id="cake-img" src="cake.png" alt="Cake">';
+                const cakeImg = document.getElementById('cake-img');
+                cakeImg.onclick = function(event) {
+                    event.stopPropagation();
+                    cakeImg.src = 'cut_cake.png';
+                    showHearts(100);
+                    setTimeout(() => {
+                        heading.innerText = pages[2].heading;
+                        message.innerHTML = '<button onclick="nextStep(event)">आगे बढ़ें</button>';
+                        step = 2;
+                    }, 2000);
+                };
+                step = 1.5; 
+            } else if (step === 2) {
+                heading.innerText = pages[3].heading;
+                message.innerHTML = '<button onclick="showGift(event)">आपकी माँ के साथ फोटो</button> <button onclick="nextStep(event)">कोई और जवाब</button>';
+                step = 3;
+            } else if (step === 3) {
+                alert("यह भी एक अच्छा जवाब है!");
+                showFinalWish();
+            }
+        }
+
+        function showGift(event) {
+            event.stopPropagation();
+            alert("यह एक बहुत ही प्यारा जवाब है!");
+            pageContainer.style.backgroundImage = `url(${pages[4].bg})`;
+            heading.innerText = pages[4].heading;
+            message.innerText = pages[4].message;
+            showHearts(100);
+        }
+
+        function showFinalWish() {
+            pageContainer.style.backgroundImage = 'none'; // Clear background
+            pageContainer.style.backgroundColor = '#f6d365'; // New solid color
+            heading.innerText = 'जन्मदिन की ढेरों शुभकामनाएं!';
+            message.innerText = 'आपका आने वाला साल खुशियों से भरा हो!';
+            showHearts(100);
+        }
+
+        function showHearts(count) {
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.innerText = '❤️';
+                heart.classList.add('heart');
+                heart.style.left = `${Math.random() * 100}vw`;
+                heart.style.animationDelay = `${Math.random() * 3}s`;
+                heartsContainer.appendChild(heart);
+            }
+        }
+    </script>
+</body>
+</html>
